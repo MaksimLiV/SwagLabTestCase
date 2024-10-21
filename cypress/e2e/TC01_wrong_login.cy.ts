@@ -20,7 +20,7 @@ describe('As a user, I want to purchase items through online shopping', () => {
             // Navigate to the Sauce Labs Sample Application
             cy.visit('https://www.saucedemo.com/');
 
-            // Проверка на наличие loginData
+            // Check for the presence of loginData
             if (!data.loginData || !data.loginData.username || !data.loginData.password) {
                 throw new Error("loginData is missing in data.json");
             }
