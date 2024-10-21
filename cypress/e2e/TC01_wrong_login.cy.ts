@@ -1,4 +1,4 @@
-import 'cypress-xpath'
+import 'cypress-xpath';
 import { loginPage } from '../selectors/loginPage';
 import { inventory } from '../selectors/inventory';
 import { inventoryItem } from '../selectors/inventoryItem';
@@ -12,27 +12,28 @@ import { logout } from '../selectors/logout';
 
 describe('As a user, I want to purchase items through online shopping', () => {
     it('The user wants to log in to an online shop in incognito mode', () => {
-        // Clear cookies and local storage to simulate incognito mode
-        cy.clearCookies();
-        cy.clearLocalStorage();
-
-        // Navigate to the Sauce Labs Sample Application
-        cy.visit('https://www.saucedemo.com/');
-        
-        // Use credentials from environment variables or fixture
-        const username = Cypress.env('USERNAME');
-        const password = Cypress.env('PASSWORD');
-
-        // Ensure the variables are available
         cy.fixture('data.json').then((data) => {
-            const loginUsername = username || data.loginData.username;
-            const loginPassword = password || data.loginData.password;
+            // Clear cookies and local storage to simulate incognito mode
+            cy.clearCookies();
+            cy.clearLocalStorage();
+
+            // Navigate to the Sauce Labs Sample Application
+            cy.visit('https://www.saucedemo.com/');
+
+            // Проверка на наличие loginData
+            if (!data.loginData || !data.loginData.username || !data.loginData.password) {
+                throw new Error("loginData is missing in data.json");
+            }
+
+            // Use credentials from environment variables
+            const username = Cypress.env('USERNAME') || data.loginData.username;
+            const password = Cypress.env('PASSWORD') || data.loginData.password;
 
             // Enter valid credentials to log in
-            cy.get(loginPage.usernameInput).type(loginUsername);
-            cy.get(loginPage.passwordInput).type(loginPassword);
+            cy.get(loginPage.usernameInput).type(username);
+            cy.get(loginPage.passwordInput).type(password);
             cy.get(loginPage.loginButton).click();
-            
+
             // Verify successful login and redirection to the products page
             cy.url().should('include', '/inventory.html');
             cy.get(inventory.inventoryList).should('be.visible');
@@ -45,7 +46,7 @@ describe('As a user, I want to purchase items through online shopping', () => {
             cy.get(inventoryItem.productName).should('contain.text', data.tShirtPage.productName);
             cy.get(inventoryItem.productDesc).should('contain.text', data.tShirtPage.productDesc);
             cy.get(inventoryItem.productPrice).should('contain.text', data.tShirtPage.productPrice1)
-            .and('contain.text', data.tShirtPage.productPrice2);
+                .and('contain.text', data.tShirtPage.productPrice2);
             cy.xpath(inventoryItem.addToCartButton).should('be.visible').click();
 
             // Verify that the T-shirt is added to the cart successfully
@@ -63,8 +64,8 @@ describe('As a user, I want to purchase items through online shopping', () => {
             cy.get(cart.cartItemName).should('contain.text', data.cartPage.cartItemNameValue);
             cy.get(cart.cartDesc).should('contain.text', data.cartPage.cartDescValue);
             cy.get(cart.cartItemPrice).should('contain.text', data.cartPage.cartItemPriceValue);
-            cy.get(cart.cartQuantity).should('contain.text', data.cartPage.cartQuantityValue); 
-            
+            cy.get(cart.cartQuantity).should('contain.text', data.cartPage.cartQuantityValue);
+
             // Click the "Checkout" button
             cy.xpath(cart.checkoutButton).click();
 
@@ -74,15 +75,15 @@ describe('As a user, I want to purchase items through online shopping', () => {
             cy.get(checkoutStepOne.firstNameInput).should('be.visible');
             cy.get(checkoutStepOne.lastNameInput).should('be.visible');
             cy.get(checkoutStepOne.postalCodeInput).should('be.visible');
-           
+
             // Enter the required checkout information
             cy.get(checkoutStepOne.firstNameInput).type(data.checkoutPage.firstNameInputValue);
-            cy.get(checkoutStepOne.lastNameInput).type(data.checkoutPage.lastNameInputValue); 
-            cy.get(checkoutStepOne.postalCodeInput).type(data.checkoutPage.postalCodeInputValue); 
+            cy.get(checkoutStepOne.lastNameInput).type(data.checkoutPage.lastNameInputValue);
+            cy.get(checkoutStepOne.postalCodeInput).type(data.checkoutPage.postalCodeInputValue);
 
             // Click the "Continue" button
             cy.get(checkoutStepOne.continueButton).click();
-            
+
             // Verify that the order summary page is displayed
             cy.url().should('include', '/checkout-step-two.html');
             cy.get(checkoutStepTwo.summaryTitle).should('contain.text', data.orderSummaryPage.summaryTitleValue);
@@ -95,7 +96,7 @@ describe('As a user, I want to purchase items through online shopping', () => {
             cy.get(checkoutStepTwo.shippingInfoText).should('contain.text', data.orderSummaryPage.shippingInfoTextValue);
             cy.get(checkoutStepTwo.subtotalLabel).should('contain.text', data.orderSummaryPage.subtotalLabelValue);
             cy.get(checkoutStepTwo.subtotalLabelText).should('contain.text', data.orderSummaryPage.subtotalLabelTextValue1)
-            .and('contain.text', data.orderSummaryPage.subtotalLabelTextValue2);
+                .and('contain.text', data.orderSummaryPage.subtotalLabelTextValue2);
             cy.get(checkoutStepTwo.taxLabel).should('contain.text', data.orderSummaryPage.taxLabelValue);
             cy.get(checkoutStepTwo.totalLabel).should('contain.text', data.orderSummaryPage.totalLabelValue);
 
@@ -114,10 +115,10 @@ describe('As a user, I want to purchase items through online shopping', () => {
             cy.get(logout.logoutLink).click();
 
             // Verify that the user is successfully logged out and redirected to the login page
-            cy.url().should('include', '/'); 
-            cy.get(loginPage.usernameInput).should('be.visible'); 
-            cy.get(loginPage.passwordInput).should('be.visible'); 
-            cy.get(loginPage.loginButton).should('be.visible'); 
+            cy.url().should('include', '/');
+            cy.get(loginPage.usernameInput).should('be.visible');
+            cy.get(loginPage.passwordInput).should('be.visible');
+            cy.get(loginPage.loginButton).should('be.visible');
         });
     });
 });
